@@ -1,0 +1,40 @@
+{
+  "produtos": [
+    {
+      "id": 1,
+      "nome": "Smartphone Samsung Galaxy A15",
+      "categoria": "Smartphone",
+      "preco": 1299.90
+    },
+    {
+      "id": 2,
+      "nome": "Notebook Lenovo Ideapad 3",
+      "categoria": "Notebook",
+      "preco": 3299.00
+    },
+    {
+      "id": 3,
+      "nome": "Smart TV 50\" 4K",
+      "categoria": "Televisão",
+      "preco": 2499.99
+    },
+    {
+      "id": 4,
+      "nome": "Fone de Ouvido Bluetooth JBL",
+      "categoria": "Acessórios",
+      "preco": 299.90
+    },
+    {
+      "id": 5,
+      "nome": "Mouse Gamer RGB",
+      "categoria": "Periféricos",
+      "preco": 159.99
+    },
+    {
+      "id": 6,
+      "nome": "Teclado Mecânico",
+      "categoria": "Periféricos",
+      "preco": 399.90
+    }
+  ]
+}
