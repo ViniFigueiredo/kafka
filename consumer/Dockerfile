@@ -6,6 +6,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY consumer.py .
+COPY data.json .
 
 ENV PYTHONUNBUFFERED=1
 CMD ["python", "consumer.py"]
