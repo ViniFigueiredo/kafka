@@ -1,6 +1,10 @@
 import json
 from kafka import KafkaConsumer
 
+# === CONFIGURAÇÃO ===
+LIMITE = 10000.0
+alerta_disparado = False
+
 with open("data.json", encoding="utf-8") as f:
     data = json.load(f)
 
@@ -20,21 +24,21 @@ print("Consumer monitorando atividade de compra...\n")
 for msg in consumer:
     evento = msg.value
 
-    # ===== ITEM REMOVIDO =====
     if msg.topic == "carrinho" and evento.get("status") == "item_removido":
         item = evento["item"]
         produto = catalogo.get(item["produto_id"])
 
         if produto:
             print(
-                f"\n ITEM REMOVIDO: {produto['nome']} | "
+                f"\nITEM REMOVIDO: {produto['nome']} | "
                 f"Qtd: {item['quantidade']}"
             )
         continue
 
-    # ===== CARRINHO =====
     if msg.topic == "carrinho":
         itens = evento.get("itens", [])
+        TOTAL = 0.0
+        alerta_disparado = False  # reseta a cada novo estado do carrinho
 
         if evento.get("status") == "carrinho_abandonado":
             print("\nCARRINHO ABANDONADO")
@@ -45,15 +49,13 @@ for msg in consumer:
             print("Carrinho vazio")
             continue
 
-        total = 0.0
-
         for item in itens:
             produto = catalogo.get(item["produto_id"])
             if not produto:
                 continue
 
             valor = produto["preco"] * item["quantidade"]
-            total += valor
+            TOTAL += valor
 
             print(
                 f"{produto['nome']} | "
@@ -61,13 +63,19 @@ for msg in consumer:
                 f"R$ {valor:.2f}"
             )
 
-        print(f"TOTAL DO CARRINHO: R$ {total:.2f}")
+        print(f"TOTAL DO CARRINHO: R$ {TOTAL:.2f}")
 
-    # ===== COMPRA =====
+        if TOTAL >= LIMITE and not alerta_disparado:
+            alerta_disparado = True
+            print(
+                "\n>>> ALERTA: TOTAL DO CARRINHO ULTRAPASSOU R$ 10.000 <<<\n"
+            )
+
+    # ================= COMPRA =================
     elif msg.topic == "compra":
         print("\n=== COMPRA FINALIZADA ===")
-
-        total = 0.0
+        TOTAL = 0.0
+        alerta_disparado = False
 
         for item in evento.get("itens", []):
             produto = catalogo.get(item["produto_id"])
@@ -75,7 +83,7 @@ for msg in consumer:
                 continue
 
             valor = produto["preco"] * item["quantidade"]
-            total += valor
+            TOTAL += valor
 
             print(
                 f"{produto['nome']} | "
@@ -83,4 +91,10 @@ for msg in consumer:
                 f"R$ {valor:.2f}"
             )
 
-        print(f"TOTAL DA COMPRA: R$ {total:.2f}")
+        print(f"TOTAL DA COMPRA: R$ {TOTAL:.2f}")
+
+        if TOTAL >= LIMITE and not alerta_disparado:
+            alerta_disparado = True
+            print(
+                "\n>>> ALERTA: VALOR DA COMPRA ULTRAPASSOU R$ 10.000 <<<\n"
+            )
